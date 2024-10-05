@@ -5,4 +5,4 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Use API key
-        run: echo ${{ secrets.API_KEY }}
+        run: echo ${{ secrets.API_KEY1 }}
