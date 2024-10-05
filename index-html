@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bildkopierer mit Chat GPT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        #imageField {
+            width: 100%;
+            max-width: 300px;
+            border: 2px dashed #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        #imageField img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        textarea {
+            width: 100%;
+            max-width: 300px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Bildkopierer mit Chat GPT</h1>
+    <p>Ziehe ein Bild in das Feld unten, klicke, um ein Bild auszuwählen oder füge ein Bild über STRG+V ein.</p>
+    
+    <div class="container">
+        <div id="imageField" contenteditable="true">
+            <p>Hier Bild einfügen oder STRG+V drücken</p>
+        </div>
+
+        <!-- Bild hochladen Button direkt unter dem Bild-Feld -->
+        <button class="button" onclick="document.getElementById('fileInput').click()">Bild hochladen</button>
+        <input type="file" id="fileInput" style="display: none;" accept="image/*" onchange="loadImage(event)">
+
+        <button class="button" id="copyImageButton" onclick="copyImageAndTextToClipboard()">Bild und Text kopieren</button>
+        <button class="button" id="copyPromptButton" onclick="copyPromptToClipboard()">Prompt kopieren</button>
+        
+        <!-- Neuer Button zum Senden an ChatGPT -->
+        <button class="button" id="sendToChatGptButton" onclick="sendToChatGpt()">Senden an Chat GPT</button>
+
+        <!-- Textfeld zur Anzeige der GPT-Antwort -->
+        <textarea id="gptResponse" rows="10" cols="50" placeholder="Die Antwort von Chat GPT wird hier angezeigt..."></textarea>
+
+        <!-- Button zum Kopieren der GPT-Antwort -->
+        <button class="button" id="copyResponseBtn" onclick="copyGptResponseToClipboard()">Antwort kopieren</button>
+    </div>
+
+    <p id="promptText"></p>
+
+    <script>
+        const promptText = "Beschreibe das Bild in maximal 150 Zeichen. Verwende deutsche Sprache und einen barrierefreien Stil bei der Bildbeschreibung.";
+        const textBelowImage = "alttext";
+
+        // Bild über FileInput laden
+        function loadImage(event) {
+            const imageField = document.getElementById('imageField');
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function() {
+                const img = document.createElement('img');
+                img.src = reader.result;
+                img.onload = function() {
+                    // Stellen Sie sicher, dass das Bild vollständig geladen ist, bevor Sie die Größe verwenden
+                    imageField.innerHTML = ''; // Leeren des Feldes
+                    imageField.appendChild(img); // Bild anzeigen
+                };
+            }
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Bild und Text zusammen in die Zwischenablage kopieren
+        function copyImageAndTextToClipboard() {
+            const imageField = document.getElementById('imageField');
+            const img = imageField.querySelector('img');
+
+            if (img) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Höhe des Textes unterhalb des Bildes bestimmen
+                const textHeight = 500;
+                const fontSize = 200;
+
+                // Setzen der Canvas-Größe auf die tatsächliche Bildgröße + Platz für Text
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight + textHeight;
+
+                // Zeichnen des Bildes auf das Canvas
+                ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+
+                // Hinzufügen des Textes unterhalb des Bildes
+                ctx.font = `${fontSize}px Arial`;
+                ctx.fillStyle = "black";
+                ctx.textAlign = "center";
+                ctx.fillText(textBelowImage, canvas.width / 2, img.naturalHeight + (textHeight / 2) + fontSize / 2);
+
+                // Kopieren des Bildes mit Text in die Zwischenablage
+                canvas.toBlob(function(blob) {
+                    const item = new ClipboardItem({ 'image/png': blob });
+                    navigator.clipboard.write([item]).then(function() {
+                        alert('Bild und Text erfolgreich kopiert!');
+                    });
+                });
+            } else {
+                alert('Bitte zuerst ein Bild einfügen.');
+            }
+        }
+
+        // Prompt in die Zwischenablage kopieren
+        function copyPromptToClipboard() {
+            navigator.clipboard.writeText(promptText).then(function() {
+                alert('Prompt kopiert!');
+            }).catch(function() {
+                alert('Fehler beim Kopieren des Prompts.');
+            });
+        }
+
+        // Bild aus der Zwischenablage einfügen
+        document.addEventListener('paste', (event) => {
+            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') === 0) {
+                    const file = items[i].getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = document.createElement('img');
+                        img.src = event.target.result;
+                        img.onload = function() {
+                            const imageField = document.getElementById('imageField');
+                            imageField.innerHTML = ''; // Leeren des Feldes
+                            imageField.appendChild(img); // Bild anzeigen
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        // Funktion, um Bild und Text an Chat GPT zu senden
+        function sendToChatGpt() {
+            const imageField = document.getElementById('imageField');
+            const img = imageField.querySelector('img');
+
+            if (img) {
+                // Simulation der Chat GPT Anfrage mit Bild und Prompt
+                const response = "Dies ist eine simulierte Antwort von Chat GPT basierend auf dem Bild und dem Prompt.";
+                document.getElementById('gptResponse').value = response;
+            } else {
+                alert('Bitte zuerst ein Bild einfügen.');
+            }
+        }
+
+        // GPT-Antwort in die Zwischenablage kopieren
+        function copyGptResponseToClipboard() {
+            const gptResponse = document.getElementById('gptResponse').value;
+            navigator.clipboard.writeText(gptResponse).then(function() {
+                alert('Antwort kopiert!');
+            }).catch(function() {
+                alert('Fehler beim Kopieren der Antwort.');
+            });
+        }
+    </script>
+
+</body>
+</html>
