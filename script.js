@@ -5,7 +5,7 @@ async function sendPromptToGitHubActions(imageBase64, textPrompt) {
         const response = await fetch('https://api.github.com/repos/diggerla2000/bildalttexter/blob/workflows/chatgpt.yml/dispatches', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer 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',  // Füge hier deinen echten GitHub-Personal-Access-Token ein
+                'Authorization': 'Bearer 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',  // Füge hier deinen echten GitHub-Personal-Access-Token ein
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json'
             },
