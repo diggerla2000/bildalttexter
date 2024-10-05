@@ -1,66 +1,70 @@
-// Function to get the OpenAI response
-async function sendPromptToGPT(imageBase64, textPrompt) {
-    const apiKey = 'YOUR_OPENAI_API_KEY'; // Replace with your OpenAI API key
-    const apiEndpoint = 'https://api.openai.com/v1/completions';
-
+// Funktion, um das Bild und den Text an GitHub Actions zu senden
+async function sendPromptToGitHubActions(imageBase64, textPrompt) {
     try {
-        // Prepare the payload for OpenAI API
-        const requestBody = {
-            model: 'gpt-3.5-turbo', // You can adjust the model as needed
-            prompt: `${textPrompt}\nImage: ${imageBase64}`,
-            max_tokens: 100,
-            temperature: 0.7
-        };
-
-        // Make the API request to OpenAI
-        const response = await fetch(apiEndpoint, {
+        // GitHub Actions API-Aufruf, um den Workflow zu starten
+        const response = await fetch('https://api.github.com/repos/DEIN_USERNAME/DEIN_REPOSITORY/actions/workflows/chatgpt.yml/dispatches', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                'Authorization': 'Bearer DEIN_PERSONAL_ACCESS_TOKEN',  // Ersetze durch dein GitHub-Personal-Access-Token
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(requestBody)
+            body: JSON.stringify({
+                ref: 'main',  // Der Branch, auf dem der Workflow ausgeführt wird
+                inputs: {
+                    prompt: textPrompt,
+                    imageData: imageBase64
+                }
+            })
         });
 
-        const data = await response.json();
-        return data.choices[0].text; // Get the response text from OpenAI
-
+        if (response.ok) {
+            return "Anfrage erfolgreich gesendet! Die Antwort wird bald hier angezeigt.";
+        } else {
+            return "Fehler beim Senden der Anfrage.";
+        }
     } catch (error) {
-        console.error('Error fetching the GPT response:', error);
-        return 'Error fetching the GPT response.';
+        console.error('Fehler beim Senden der Anfrage an GitHub Actions:', error);
+        return 'Fehler beim Senden der Anfrage an GitHub Actions.';
     }
 }
 
-// Function to handle the button click event
+// Funktion, um die Bilddaten in Base64 zu konvertieren und an GitHub Actions zu senden
 document.getElementById('sendPromptBtn').addEventListener('click', async () => {
-    const textPrompt = "This is the text you want to send along with the image."; // Replace this with dynamic input
-    const imageUrl = 'path/to/your/image.png'; // Replace with your image path
+    const textPrompt = "This is the text you want to send along with the image."; // Passe dies dynamisch an
+    const imageUrl = 'path/to/your/image.png'; // Ersetze dies durch den Pfad deines Bildes
 
-    // Convert image to Base64
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-    const reader = new FileReader();
+    try {
+        // Hole das Bild und konvertiere es in Base64
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const reader = new FileReader();
 
-    reader.onloadend = async () => {
-        const imageBase64 = reader.result.split(',')[1]; // Get Base64 string from the result
-        const gptResponse = await sendPromptToGPT(imageBase64, textPrompt);
-        
-        // Show GPT response in the textarea
-        document.getElementById('gptResponse').value = gptResponse;
-    };
-    reader.readAsDataURL(blob);
+        reader.onloadend = async () => {
+            const imageBase64 = reader.result.split(',')[1]; // Base64-String extrahieren
+            const gptResponse = await sendPromptToGitHubActions(imageBase64, textPrompt);
+
+            // Zeige die Antwort von GitHub Actions im Textbereich an
+            document.getElementById('gptResponse').value = gptResponse;
+        };
+
+        reader.readAsDataURL(blob);
+    } catch (error) {
+        console.error('Fehler beim Laden des Bildes:', error);
+        document.getElementById('gptResponse').value = 'Fehler beim Laden des Bildes.';
+    }
 });
 
-// Function to copy the GPT response to the clipboard
+// Funktion zum Kopieren der GPT-Antwort in die Zwischenablage
 document.getElementById('copyResponseBtn').addEventListener('click', () => {
     const gptResponse = document.getElementById('gptResponse').value;
 
-    // Copy to clipboard
+    // Kopiere den Text in die Zwischenablage
     navigator.clipboard.writeText(gptResponse)
         .then(() => {
-            alert('Response copied to clipboard!');
+            alert('Antwort in die Zwischenablage kopiert!');
         })
         .catch(err => {
-            console.error('Failed to copy response: ', err);
+            console.error('Fehler beim Kopieren der Antwort:', err);
         });
 });
