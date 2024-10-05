@@ -2,10 +2,10 @@
 async function sendPromptToGitHubActions(imageBase64, textPrompt) {
     try {
         // GitHub Actions API-Aufruf, um den Workflow zu starten
-        const response = await fetch('https://api.github.com/repos/DEIN_USERNAME/DEIN_REPOSITORY/actions/workflows/chatgpt.yml/dispatches', {
+        const response = await fetch('https://api.github.com/repos/diggerla2000/bildalttexter/actions/workflows/chatgpt.yml/dispatches', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer DEIN_PERSONAL_ACCESS_TOKEN',  // Ersetze durch dein GitHub-Personal-Access-Token
+                'Authorization': 'Bearer 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',  // Ersetze durch dein GitHub-Personal-Access-Token
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json'
             },
