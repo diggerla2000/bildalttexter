@@ -11,7 +11,7 @@ app.post('/send-to-github-actions', async (req, res) => {
     const { imageBase64, textPrompt } = req.body;
 
     try {
-        const response = await fetch('https://gawelskitools-558e7e76c43a.herokuapp.com//dispatches', {
+        const response = await fetch('https://gawelskitools.github.io/bildalttexter/dispatches', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${GITHUB_PAT}`,  // Verwende die Umgebungsvariable
