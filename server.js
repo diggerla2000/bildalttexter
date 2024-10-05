@@ -1,28 +1,25 @@
 const express = require('express');
 const fetch = require('node-fetch');
-require('dotenv').config();  // Um den Token sicher aus der .env-Datei zu laden
+require('dotenv').config();  // Falls du lokal eine .env-Datei verwendest
 
 const app = express();
-const port = process.env.PORT || 3000;
-
-// Middleware, um JSON-Daten zu verarbeiten
 app.use(express.json());
 
-// POST-Route für die API-Anfrage
+const GITHUB_PAT = process.env.GITHUB_PAT;  // Verwende die Umgebungsvariable GITHUB_PAT
+
 app.post('/send-to-github-actions', async (req, res) => {
     const { imageBase64, textPrompt } = req.body;
 
     try {
-        // GitHub Actions API-Aufruf
-        const response = await fetch('https://api.github.com/repos/diggerla2000/bildalttexter/actions/workflows/chatgpt.yml/dispatches', {
+        const response = await fetch('https://gawelskitools-558e7e76c43a.herokuapp.com//dispatches', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${process.env.GITHUB_PAT}`,  // GitHub Token aus der .env-Datei laden
+                'Authorization': `Bearer ${GITHUB_PAT}`,  // Verwende die Umgebungsvariable
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                ref: 'workflows',  // Der Branch, auf dem der Workflow ausgeführt wird
+                ref: 'workflows',
                 inputs: {
                     prompt: textPrompt,
                     imageData: imageBase64
@@ -40,7 +37,7 @@ app.post('/send-to-github-actions', async (req, res) => {
     }
 });
 
-// Server starten
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Server läuft auf Port ${port}`);
 });
