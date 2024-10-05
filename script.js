@@ -5,7 +5,7 @@ async function sendPromptToGitHubActions(imageBase64, textPrompt) {
         const response = await fetch('https://api.github.com/repos/diggerla2000/bildalttexter/actions/workflows/chatgpt.yml/dispatches', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer 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',  // Ersetze durch dein GitHub-Personal-Access-Token
+                'Authorization': 'Bearer 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',  // Füge hier deinen echten GitHub-Personal-Access-Token ein
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json'
             },
@@ -21,7 +21,7 @@ async function sendPromptToGitHubActions(imageBase64, textPrompt) {
         if (response.ok) {
             return "Anfrage erfolgreich gesendet! Die Antwort wird bald hier angezeigt.";
         } else {
-            return "Fehler beim Senden der Anfrage.";
+            return `Fehler beim Senden der Anfrage. Status: ${response.status}`;
         }
     } catch (error) {
         console.error('Fehler beim Senden der Anfrage an GitHub Actions:', error);
@@ -31,15 +31,19 @@ async function sendPromptToGitHubActions(imageBase64, textPrompt) {
 
 // Funktion, um die Bilddaten in Base64 zu konvertieren und an GitHub Actions zu senden
 document.getElementById('sendPromptBtn').addEventListener('click', async () => {
-    const textPrompt = "This is the text you want to send along with the image."; // Passe dies dynamisch an
-    const imageUrl = 'path/to/your/image.png'; // Ersetze dies durch den Pfad deines Bildes
+    const textPrompt = document.getElementById('textPrompt').value || "Dies ist der Standardtext für den Prompt."; // Passe dies dynamisch an
+    const imageInput = document.getElementById('imageInput'); // Verwende einen File-Input für das Bild
+
+    if (!imageInput.files.length) {
+        alert('Bitte zuerst ein Bild auswählen.');
+        return;
+    }
+
+    const file = imageInput.files[0];
 
     try {
-        // Hole das Bild und konvertiere es in Base64
-        const response = await fetch(imageUrl);
-        const blob = await response.blob();
+        // Bild konvertieren in Base64
         const reader = new FileReader();
-
         reader.onloadend = async () => {
             const imageBase64 = reader.result.split(',')[1]; // Base64-String extrahieren
             const gptResponse = await sendPromptToGitHubActions(imageBase64, textPrompt);
@@ -48,10 +52,10 @@ document.getElementById('sendPromptBtn').addEventListener('click', async () => {
             document.getElementById('gptResponse').value = gptResponse;
         };
 
-        reader.readAsDataURL(blob);
+        reader.readAsDataURL(file);
     } catch (error) {
-        console.error('Fehler beim Laden des Bildes:', error);
-        document.getElementById('gptResponse').value = 'Fehler beim Laden des Bildes.';
+        console.error('Fehler beim Verarbeiten des Bildes:', error);
+        document.getElementById('gptResponse').value = 'Fehler beim Verarbeiten des Bildes.';
     }
 });
 
