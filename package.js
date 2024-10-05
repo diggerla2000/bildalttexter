@@ -1,5 +1,5 @@
 {
-  "name": "my-proxy-server",
+  "name": "gawelskitools_proxy_server",
   "version": "1.0.0",
   "description": "Backend-Proxy-Server für GitHub Actions",
   "main": "server.js",
