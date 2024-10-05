@@ -1,0 +1,37 @@
+name: ChatGPT Request
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: 'Text prompt to send to ChatGPT'
+        required: true
+      imageData:
+        description: 'Image data (base64 string)'
+        required: true
+
+jobs:
+  call_chatgpt:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Call ChatGPT API
+      run: |
+        echo "Calling OpenAI API with prompt: ${{ github.event.inputs.prompt }}"
+
+        RESPONSE=$(curl https://api.openai.com/v1/completions \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer ${{ secrets.API_KEY1 }}" \
+        -d '{
+          "model": "gpt-3.5-turbo",
+          "prompt": "${{ github.event.inputs.prompt }}",
+          "max_tokens": 100
+        }')
+
+        echo "Response: $RESPONSE"
+        
+        echo "::set-output name=gpt_response::$RESPONSE"
+
+    outputs:
+      gpt_response:
+        description: 'The response from ChatGPT API'
