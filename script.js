@@ -2,7 +2,7 @@
 async function sendToChatGpt() {
     const fileInput = document.getElementById('imageInput'); // Dateiinput-Element
     const gptResponseField = document.getElementById('gptResponse'); // Textbereich für die Antwort
-    const textPrompt = document.getElementById('textPrompt').value || "Dies ist der Standardtext für den Prompt."; // Text-Prompt
+    const textPrompt = document.getElementById('textPrompt').value || "Bildbeschreibung mit maximal 150 Zeichen."; // Text-Prompt
 
     // Prüfen, ob ein Bild hochgeladen wurde
     if (fileInput.files && fileInput.files[0]) {
