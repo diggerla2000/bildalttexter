@@ -10,7 +10,7 @@ async function sendPromptToGitHubActions(imageBase64, textPrompt) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                ref: 'main',  // Der Branch, auf dem der Workflow ausgeführt wird
+                ref: 'workflows',  // Der Branch, auf dem der Workflow ausgeführt wird
                 inputs: {
                     prompt: textPrompt,
                     imageData: imageBase64
