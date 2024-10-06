@@ -1,65 +1,84 @@
-// Funktion, um Bild und Text an den Backend-Server auf Heroku zu senden
+// Funktion, um Bild über FileInput zu laden
+function loadImage(event) {
+    const imageField = document.getElementById('imageField');
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function() {
+        const img = document.createElement('img');
+        img.src = reader.result;
+        img.onload = function() {
+            // Bild anzeigen im Image Field
+            imageField.innerHTML = ''; // Leeren des Feldes
+            imageField.appendChild(img); // Bild einfügen
+        };
+    };
+
+    if (file) {
+        reader.readAsDataURL(file); // Datei in Base64 konvertieren
+    }
+}
+
+// Funktion, um Bild und Text an den Backend-Server zu senden
 async function sendToChatGpt() {
-    const fileInput = document.getElementById('imageInput'); // Dateiinput-Element
-    const gptResponseField = document.getElementById('gptResponse'); // Textbereich für die Antwort
-    const textPrompt = document.getElementById('textPrompt').value || "Bildbeschreibung mit maximal 150 Zeichen."; // Text-Prompt
+    const fileInput = document.getElementById('fileInput');
+    const gptResponseField = document.getElementById('gptResponse');
+    const promptText = "Beschreibe das Bild in maximal 150 Zeichen.";
 
-    // Prüfen, ob ein Bild hochgeladen wurde
     if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0]; // Die hochgeladene Bilddatei
-
-        // Bild in Base64 umwandeln
+        const file = fileInput.files[0];
         const reader = new FileReader();
+
         reader.onloadend = async function () {
-            const imageBase64 = reader.result.split(',')[1]; // Base64-String extrahieren
+            const imageBase64 = reader.result.split(',')[1]; // Base64-String des Bildes extrahieren
 
             // Anfrage an den Heroku-Backend-Server senden
             try {
-                const response = await fetch('https://gawelskitools-558e7e76c43a.herokuapp.com/', {
+                const response = await fetch('https://gawelskitools-558e7e76c43a.herokuapp.com/send-to-github-actions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        imageBase64: imageBase64,
-                        textPrompt: textPrompt
+                        imageBase64: imageBase64, // Bilddaten
+                        textPrompt: promptText     // Der Textprompt
                     })
                 });
 
                 if (response.ok) {
                     const result = await response.json();
-                    gptResponseField.value = result.message; // Zeige die Antwort an
+                    gptResponseField.value = result.message; // Antwort anzeigen
                 } else {
-                    gptResponseField.value = `Fehler beim Senden der Anfrage. Status: ${response.status}`;
+                    gptResponseField.value = `Fehler: ${response.status}`;
                 }
             } catch (error) {
                 gptResponseField.value = `Serverfehler: ${error}`;
             }
         };
 
-        reader.readAsDataURL(file); // Datei lesen und in Base64 umwandeln
+        reader.readAsDataURL(file); // Datei in Base64 konvertieren
     } else {
         alert('Bitte zuerst ein Bild auswählen.');
     }
 }
 
-// Funktion, um den Prompt in die Zwischenablage zu kopieren
-function copyPromptToClipboard() {
-    const promptText = document.getElementById('textPrompt').value;
-    navigator.clipboard.writeText(promptText).then(function() {
-        alert('Prompt kopiert!');
-    }).catch(function() {
-        alert('Fehler beim Kopieren des Prompts.');
-    });
-}
-
-// Funktion, um die GPT-Antwort in die Zwischenablage zu kopieren
+// GPT-Antwort in die Zwischenablage kopieren
 function copyGptResponseToClipboard() {
     const gptResponse = document.getElementById('gptResponse').value;
     navigator.clipboard.writeText(gptResponse).then(function() {
         alert('Antwort kopiert!');
     }).catch(function() {
         alert('Fehler beim Kopieren der Antwort.');
+    });
+}
+
+// Prompt in die Zwischenablage kopieren
+function copyPromptToClipboard() {
+    const promptText = "Beschreibe das Bild in maximal 150 Zeichen.";
+    navigator.clipboard.writeText(promptText).then(function() {
+        alert('Prompt kopiert!');
+    }).catch(function() {
+        alert('Fehler beim Kopieren des Prompts.');
     });
 }
 
@@ -70,4 +89,4 @@ document.getElementById('sendToChatGptButton').addEventListener('click', sendToC
 document.getElementById('copyResponseBtn').addEventListener('click', copyGptResponseToClipboard);
 
 // Event Listener für den Button zum Kopieren des Prompts
-document.getElementById('copyPromptBtn').addEventListener('click', copyPromptToClipboard);
+document.getElementById('copyPromptButton').addEventListener('click', copyPromptToClipboard);
