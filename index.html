@@ -109,7 +109,7 @@
                     const imageBase64 = reader.result.split(',')[1]; // Base64-String des Bildes extrahieren
 
                     // Anfrage an den Heroku-Backend-Server senden
-                    const response = await fetch('https://gawelskitools-558e7e76c43a.herokuapp.com', {
+                    const response = await fetch('https://gawelskitools-558e7e76c43a.herokuapp.com/send-to-github-actions', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
