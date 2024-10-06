@@ -1,3 +1,4 @@
+'https://gawelskitools.github.io/bildalttexter/'
 const express = require('express');
 const fetch = require('node-fetch');
 const cors = require('cors'); // CORS-Modul importieren
@@ -11,13 +12,14 @@ app.use(cors({
 
 app.use(express.json());
 
-const GITHUB_PAT = process.env.GITHUB_PAT;
+const GITHUB_PAT = process.env.GITHUB_PAT; // GitHub PAT von Heroku Config Vars
 
 app.post('/send-to-github-actions', async (req, res) => {
     const { imageBase64, textPrompt } = req.body;
 
     try {
-        const response = await fetch('https://gawelskitools.github.io/bildalttexter/', {
+        // Anfrage an die GitHub API senden, um den Workflow auszulösen
+        const response = await fetch('https://api.github.com/repos/gawelskitools/bildalttexter/workflows/chatgpt.yml/dispatches', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${GITHUB_PAT}`,
@@ -25,7 +27,7 @@ app.post('/send-to-github-actions', async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                ref: 'workflows',
+                ref: 'main',
                 inputs: {
                     prompt: textPrompt,
                     imageData: imageBase64
@@ -43,6 +45,7 @@ app.post('/send-to-github-actions', async (req, res) => {
     }
 });
 
+// Starte den Server auf einem Port (von Heroku zugewiesen oder 3000 lokal)
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Server läuft auf Port ${port}`);
