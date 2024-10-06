@@ -57,94 +57,24 @@
             <p>Hier Bild einfügen oder STRG+V drücken</p>
         </div>
 
-        <!-- Bild hochladen Button direkt unter dem Bild-Feld -->
+        <!-- Bild hochladen Button -->
         <button class="button" onclick="document.getElementById('fileInput').click()">Bild hochladen</button>
         <input type="file" id="fileInput" style="display: none;" accept="image/*" onchange="loadImage(event)">
 
         <!-- Senden an Chat GPT über Heroku -->
-        <button class="button" id="sendToChatGptButton" onclick="sendToChatGpt()">Senden an Chat GPT</button>
+        <button class="button" id="sendToChatGptButton">Senden an Chat GPT</button>
 
         <!-- Textfeld zur Anzeige der GPT-Antwort -->
         <textarea id="gptResponse" rows="10" cols="50" placeholder="Die Antwort von Chat GPT wird hier angezeigt..."></textarea>
 
         <!-- Button zum Kopieren der GPT-Antwort -->
-        <button class="button" id="copyResponseBtn" onclick="copyGptResponseToClipboard()">Antwort kopieren</button>
+        <button class="button" id="copyResponseBtn">Antwort kopieren</button>
+
+        <!-- Button zum Kopieren des Prompts -->
+        <button class="button" id="copyPromptButton">Prompt kopieren</button>
     </div>
 
-    <script>
-        const promptText = "Beschreibe das Bild in maximal 150 Zeichen. Verwende deutsche Sprache und einen barrierefreien Stil bei der Bildbeschreibung.";
-
-        // Bild über FileInput laden
-        function loadImage(event) {
-            const imageField = document.getElementById('imageField');
-            const file = event.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function() {
-                const img = document.createElement('img');
-                img.src = reader.result;
-                img.onload = function() {
-                    // Bild anzeigen im Image Field
-                    imageField.innerHTML = ''; // Leeren des Feldes
-                    imageField.appendChild(img); // Bild einfügen
-                };
-            }
-
-            if (file) {
-                reader.readAsDataURL(file); // Datei in Base64 konvertieren
-            }
-        }
-
-        // Bild und Text an den Heroku-Backend-Server senden
-        async function sendToChatGpt() {
-            const fileInput = document.getElementById('fileInput');
-            const gptResponseField = document.getElementById('gptResponse');
-
-            // Prüfen, ob ein Bild hochgeladen wurde
-            if (fileInput.files && fileInput.files[0]) {
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-
-                reader.onloadend = async function () {
-                    const imageBase64 = reader.result.split(',')[1]; // Base64-String des Bildes extrahieren
-
-                    // Anfrage an den Heroku-Backend-Server senden
-                    const response = await fetch('https://gawelskitools-558e7e76c43a.herokuapp.com/send-to-github-actions', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            imageBase64: imageBase64, // Bilddaten
-                            textPrompt: promptText     // Der Textprompt
-                        })
-                    });
-
-                    // Antwort verarbeiten
-                    if (response.ok) {
-                        const result = await response.json();
-                        gptResponseField.value = result.message; // Antwort anzeigen
-                    } else {
-                        gptResponseField.value = `Fehler: ${response.status}`;
-                    }
-                };
-
-                reader.readAsDataURL(file); // Datei in Base64 konvertieren
-            } else {
-                alert('Bitte zuerst ein Bild auswählen.');
-            }
-        }
-
-        // GPT-Antwort in die Zwischenablage kopieren
-        function copyGptResponseToClipboard() {
-            const gptResponse = document.getElementById('gptResponse').value;
-            navigator.clipboard.writeText(gptResponse).then(function() {
-                alert('Antwort kopiert!');
-            }).catch(function() {
-                alert('Fehler beim Kopieren der Antwort.');
-            });
-        }
-    </script>
+    <script src="script.js"></script>
 
 </body>
 </html>
