@@ -17,7 +17,7 @@ app.post('/send-to-github-actions', async (req, res) => {
     const { imageBase64, textPrompt } = req.body;
 
     try {
-        const response = await fetch('https://gawelskitools.github.io/bildalttexter/dispatches', {
+        const response = await fetch('https://gawelskitools.github.io/bildalttexter/', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${GITHUB_PAT}`,
