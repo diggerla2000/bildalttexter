@@ -1,7 +1,7 @@
 {
   "name": "gawelskitools_proxyserver",
   "version": "1.0.0",
-  "description": "Backend-Proxy-Server für GitHub Actions",
+  "description": "Node.js app for handling CORS on Heroku",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -9,10 +9,9 @@
   "dependencies": {
     "express": "^4.17.1",
     "node-fetch": "^2.6.1",
-    "dotenv": "^10.0.0"
+    "cors": "^2.8.5"  // Füge hier CORS hinzu
   },
   "engines": {
     "node": "14.x"
-  },
-  "license": "MIT"
+  }
 }
