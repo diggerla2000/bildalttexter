@@ -1,26 +1,31 @@
 const express = require('express');
 const fetch = require('node-fetch');
+const cors = require('cors'); // CORS-Modul importieren
 
 const app = express();
+
+// CORS-Konfiguration: Erlaube Anfragen von 'https://gawelskitools.github.io'
+app.use(cors({
+    origin: 'https://gawelskitools.github.io'
+}));
+
 app.use(express.json());
 
-// Zugriff auf die Umgebungsvariable GITHUB_PAT (Config Var auf Heroku)
-const GITHUB_PAT = process.env.GITHUB_PAT;  // Heroku stellt diese Umgebungsvariable bereit
+const GITHUB_PAT = process.env.GITHUB_PAT;
 
 app.post('/send-to-github-actions', async (req, res) => {
     const { imageBase64, textPrompt } = req.body;
 
     try {
-        // Verwende die GitHub API, um den Workflow zu starten
         const response = await fetch('https://gawelskitools.github.io/bildalttexter/dispatches', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${GITHUB_PAT}`,  // Verwende die Umgebungsvariable aus den Config Vars
+                'Authorization': `Bearer ${GITHUB_PAT}`,
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                ref: 'workflows',  // Der Branch, auf dem der Workflow ausgeführt wird
+                ref: 'workflows',
                 inputs: {
                     prompt: textPrompt,
                     imageData: imageBase64
@@ -28,7 +33,6 @@ app.post('/send-to-github-actions', async (req, res) => {
             })
         });
 
-        // Erfolgreiche Antwort von GitHub
         if (response.ok) {
             res.json({ message: 'Anfrage erfolgreich gesendet!' });
         } else {
@@ -39,7 +43,6 @@ app.post('/send-to-github-actions', async (req, res) => {
     }
 });
 
-// Startet den Server auf Heroku's Port oder einem lokalen Port 3000
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Server läuft auf Port ${port}`);
