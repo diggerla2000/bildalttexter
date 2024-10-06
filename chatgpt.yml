@@ -1,0 +1,35 @@
+name: ChatGPT-Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: 'Bildebeschreibung mit maximal 150 Zeichen'
+        required: true
+      imageData:
+        description: 'Base64-encoded Bilddaten'
+        required: true
+
+jobs:
+  chatgpt:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Process image and prompt
+      run: |
+        echo "Processing image and prompt..."
+        echo "Prompt: ${{ github.event.inputs.prompt }}"
+        echo "Image data length: ${#github.event.inputs.imageData}"
+
+        # Hier würdest du normalerweise deinen Node.js-Code oder ein Skript aufrufen,
+        # das das Bild und den Text an ChatGPT oder einen anderen Service sendet.
+
+    - name: Respond with success message
+      run: echo "Workflow abgeschlossen. Das Bild wurde erfolgreich verarbeitet."
