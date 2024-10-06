@@ -15,7 +15,7 @@ async function sendToChatGpt() {
 
             // Anfrage an den Heroku-Backend-Server senden
             try {
-                const response = await fetch('https://gawelskitools-558e7e76c43a.herokuapp.com/send-to-github-actions', {
+                const response = await fetch('https://gawelskitools-558e7e76c43a.herokuapp.com/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
